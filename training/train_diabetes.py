@@ -29,14 +29,14 @@ datastore_paths = [(datastore, 'diabetes/diabetes.csv')]
 traindata = Dataset.Tabular.from_delimited_files(path=datastore_paths)
 diabetes = traindata.to_pandas_dataframe()
 print("Columns:", diabetes.columns) 
-print("Diabetes data set dimensions : {}".format(diabetes.shape))
+print("Diabetes data set dimensions: {}".format(diabetes.shape))
 
 y = diabetes.pop('Y')
 X_train, X_test, y_train, y_test = train_test_split(diabetes, y, test_size=0.2, random_state=0)
 data = {"train": {"X": X_train, "y": y_train}, "test": {"X": X_test, "y": y_test}}
 
 print("Training the model...")
-# Randomly pic alpha
+# Randomly pick alpha
 alphas = np.arange(0.0, 1.0, 0.05)
 alpha = alphas[np.random.choice(alphas.shape[0], 1, replace=False)][0]
 print("alpha:", alpha)
@@ -52,7 +52,7 @@ print("Mean Squared Error:", mse)
 run.log("mse", mse)
 
 # Save model as part of the run history
-print("Exporting the model as pickle file...")
+print("Exporting the model as a pickle file...")
 outputs_folder = './model'
 os.makedirs(outputs_folder, exist_ok=True)
 
@@ -60,7 +60,7 @@ model_filename = "sklearn_diabetes_model.pkl"
 model_path = os.path.join(outputs_folder, model_filename)
 dump(reg, model_path)
 
-# upload the model file explicitly into artifacts
+# Upload the model file explicitly into artifacts
 print("Uploading the model into run artifacts...")
 run.upload_file(name="./outputs/models/" + model_filename, path_or_stream=model_path)
 print("Uploaded the model {} to experiment {}".format(model_filename, run.experiment.name))
@@ -68,5 +68,9 @@ dirpath = os.getcwd()
 print(dirpath)
 print("Following files are uploaded ")
 print(run.get_file_names())
+
+# Do not clear Azure CLI account here
+# Commenting out the line to avoid unexpected issues
+# subprocess.run("/home/ubuntu/myagent/_work/_tool/Python/3.10.12/x64/bin/az account clear", shell=True)
 
 run.complete()
