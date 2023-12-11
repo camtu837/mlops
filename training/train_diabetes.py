@@ -69,8 +69,10 @@ print(dirpath)
 print("Following files are uploaded ")
 print(run.get_file_names())
 
-# Do not clear Azure CLI account here
-# Commenting out the line to avoid unexpected issues
-# subprocess.run("/home/ubuntu/myagent/_work/_tool/Python/3.10.12/x64/bin/az account clear", shell=True)
+# Run is complete, clear Azure CLI account
+print("Clearing Azure CLI account...")
+clear_account_command = "/home/ubuntu/myagent/_work/_tool/Python/3.10.12/x64/bin/az account clear"
+subprocess.run(clear_account_command, shell=True)
 
+# Complete the run
 run.complete()
