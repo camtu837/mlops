@@ -1,29 +1,17 @@
-import pickle
-import os
-import numpy as np
-import pandas as pd
-import json
-import subprocess
+# train_diabetes.py
 
+from azureml.core import Workspace, Dataset, Run
 from sklearn.linear_model import Ridge
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import train_test_split
 from joblib import dump
-from typing import Tuple, List
-
-import matplotlib.pyplot as plt
-import seaborn as sns
-
-from azureml.core import Workspace, Datastore, Dataset
-from azureml.core.run import Run
-from azureml.core.model import Model
+import os
 
 run = Run.get_context()
 exp = run.experiment
 ws = run.experiment.workspace
 
 print("Loading training data...")
-# https://www4.stat.ncsu.edu/~boos/var.select/diabetes.html
 datastore = ws.get_default_datastore()
 datastore_paths = [(datastore, 'diabetes/diabetes.csv')]
 traindata = Dataset.Tabular.from_delimited_files(path=datastore_paths)
@@ -36,9 +24,7 @@ X_train, X_test, y_train, y_test = train_test_split(diabetes, y, test_size=0.2, 
 data = {"train": {"X": X_train, "y": y_train}, "test": {"X": X_test, "y": y_test}}
 
 print("Training the model...")
-# Randomly pick alpha
-alphas = np.arange(0.0, 1.0, 0.05)
-alpha = alphas[np.random.choice(alphas.shape[0], 1, replace=False)][0]
+alpha = 0.1  # For simplicity, you can set your desired alpha value
 print("alpha:", alpha)
 run.log("alpha", alpha)
 reg = Ridge(alpha=alpha)
@@ -64,15 +50,5 @@ dump(reg, model_path)
 print("Uploading the model into run artifacts...")
 run.upload_file(name="./outputs/models/" + model_filename, path_or_stream=model_path)
 print("Uploaded the model {} to experiment {}".format(model_filename, run.experiment.name))
-dirpath = os.getcwd()
-print(dirpath)
-print("Following files are uploaded ")
-print(run.get_file_names())
 
-# Run is complete, clear Azure CLI account
-print("Clearing Azure CLI account...")
-clear_account_command = "/home/ubuntu/myagent/_work/_tool/Python/3.10.12/x64/bin/az account clear"
-subprocess.run(clear_account_command, shell=True)
-
-# Complete the run
 run.complete()
